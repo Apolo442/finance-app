@@ -1,0 +1,89 @@
+import "server-only";
+import { prisma } from "@/lib/prisma";
+import {
+  calcNetRemainder,
+  calcWeeklyAllocation,
+  calcWeeklyBalance,
+} from "@/lib/calculations";
+import { OverviewClient } from "@/components/monthly/overview-client";
+
+async function getMonthData(month: string) {
+  const [year, m] = month.split("-").map(Number);
+
+  const budget = await prisma.monthlyBudget.findUnique({ where: { month } });
+
+  const fixed = await prisma.fixedExpense.findMany({
+    where: {
+      validFrom: { lte: month },
+      OR: [{ deletedAt: null }, { deletedAt: { gt: month } }],
+    },
+  });
+
+  const allInstallments = await prisma.installment.findMany();
+  const installments = allInstallments.filter((inst) => {
+    const [sy, sm] = inst.startMonth.split("-").map(Number);
+    const elapsed = year * 12 + m - (sy * 12 + sm);
+    return (
+      elapsed >= 0 &&
+      inst.currentInstallment + elapsed <= inst.totalInstallments
+    );
+  });
+
+  const weeklyExpenses = await prisma.weeklyExpense.findMany({
+    where: { month },
+    orderBy: [{ week: "asc" }, { createdAt: "asc" }],
+  });
+
+  const incomeTotal = Number(budget?.incomeTotal ?? 0);
+  const reserveAmount = Number(budget?.reserveAmount ?? 0);
+  const carryOvers = {
+    carryOver2: budget?.carryOver2 ?? false,
+    carryOver3: budget?.carryOver3 ?? false,
+    carryOver4: budget?.carryOver4 ?? false,
+  };
+
+  const fixedNum = fixed.map((f) => ({ value: Number(f.value) }));
+  const installNum = installments.map((i) => ({ value: Number(i.value) }));
+  const weeklyNum = weeklyExpenses.map((e) => ({
+    value: Number(e.value),
+    week: e.week,
+  }));
+
+  const netRemainder = calcNetRemainder(
+    incomeTotal,
+    reserveAmount,
+    fixedNum,
+    installNum,
+  );
+  const weeklyAllocation = calcWeeklyAllocation(netRemainder);
+
+  const weeks = [1, 2, 3, 4].map((w) =>
+    calcWeeklyBalance(w, weeklyAllocation, weeklyNum, carryOvers),
+  );
+
+  const totalFixed = fixedNum.reduce((acc, f) => acc + f.value, 0);
+  const totalInstallments = installNum.reduce((acc, i) => acc + i.value, 0);
+  const totalWeeklySpent = weeklyNum.reduce((acc, e) => acc + e.value, 0);
+
+  return {
+    budget: { incomeTotal, reserveAmount },
+    carryOvers,
+    totalFixed,
+    totalInstallments,
+    totalWeeklySpent,
+    netRemainder,
+    weeklyAllocation,
+    weeks,
+    hasData: !!budget,
+  };
+}
+
+export default async function MonthPage({
+  params,
+}: {
+  params: Promise<{ month: string }>;
+}) {
+  const { month } = await params;
+  const data = await getMonthData(month);
+  return <OverviewClient month={month} data={data} />;
+}
