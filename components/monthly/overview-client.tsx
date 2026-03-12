@@ -222,12 +222,16 @@ function AddExpenseForm({
   week: number;
   onAdd: () => void;
 }) {
+  const today = new Date();
+  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+  const defaultDate = today.toISOString().split("T")[0];
+
   const [title, setTitle] = useState("");
   const [value, setValue] = useState("");
   const [type, setType] = useState("CREDITO");
-  const [bank, setBank] = useState("");
+  const [bank, setBank] = useState("NUBANK");
   const [category, setCategory] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(defaultDate);
   const [showOptional, setShowOptional] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -249,9 +253,9 @@ function AddExpenseForm({
     setTitle("");
     setValue("");
     setType("CREDITO");
-    setBank("");
+    setBank("NUBANK");
     setCategory("");
-    setDate("");
+    setDate("defaultDate");
     setShowOptional(false);
     setLoading(false);
     onAdd();
