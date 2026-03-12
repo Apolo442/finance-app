@@ -20,7 +20,8 @@ export type Bank = (typeof Bank)[keyof typeof Bank]
 export const ExpenseType = {
   CREDITO: 'CREDITO',
   PIX: 'PIX',
-  RESERVADO: 'RESERVADO'
+  RESERVADO: 'RESERVADO',
+  OUTROS: 'OUTROS'
 } as const
 
 export type ExpenseType = (typeof ExpenseType)[keyof typeof ExpenseType]

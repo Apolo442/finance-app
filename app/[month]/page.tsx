@@ -3,14 +3,25 @@ import { prisma } from "@/lib/prisma";
 import {
   calcNetRemainder,
   calcWeeklyAllocation,
-  calcWeeklyBalance,
+  calcAllWeeks,
 } from "@/lib/calculations";
 import { OverviewClient } from "@/components/monthly/overview-client";
 
 async function getMonthData(month: string) {
   const [year, m] = month.split("-").map(Number);
 
-  const budget = await prisma.monthlyBudget.findUnique({ where: { month } });
+  const budget = await prisma.monthlyBudget.upsert({
+    where: { month },
+    update: {},
+    create: {
+      month,
+      incomeTotal: 1000,
+      reserveAmount: 0,
+      carryOver2: false,
+      carryOver3: false,
+      carryOver4: false,
+    },
+  });
 
   const fixed = await prisma.fixedExpense.findMany({
     where: {
@@ -56,10 +67,7 @@ async function getMonthData(month: string) {
     installNum,
   );
   const weeklyAllocation = calcWeeklyAllocation(netRemainder);
-
-  const weeks = [1, 2, 3, 4].map((w) =>
-    calcWeeklyBalance(w, weeklyAllocation, weeklyNum, carryOvers),
-  );
+  const weeks = calcAllWeeks(weeklyAllocation, weeklyNum, carryOvers);
 
   const totalFixed = fixedNum.reduce((acc, f) => acc + f.value, 0);
   const totalInstallments = installNum.reduce((acc, i) => acc + i.value, 0);
@@ -74,7 +82,16 @@ async function getMonthData(month: string) {
     netRemainder,
     weeklyAllocation,
     weeks,
-    hasData: !!budget,
+    weeklyExpenses: weeklyExpenses.map((e) => ({
+      id: e.id,
+      title: e.title,
+      value: Number(e.value),
+      type: e.type,
+      bank: e.bank,
+      category: e.category,
+      date: e.date?.toISOString() ?? null,
+      week: e.week,
+    })),
   };
 }
 

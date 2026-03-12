@@ -390,7 +390,8 @@ export const ModelName = {
   FixedExpense: 'FixedExpense',
   Installment: 'Installment',
   MonthlyBudget: 'MonthlyBudget',
-  WeeklyExpense: 'WeeklyExpense'
+  WeeklyExpense: 'WeeklyExpense',
+  Marketplace: 'Marketplace'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -406,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "user" | "fixedExpense" | "installment" | "monthlyBudget" | "weeklyExpense"
+    modelProps: "account" | "session" | "user" | "fixedExpense" | "installment" | "monthlyBudget" | "weeklyExpense" | "marketplace"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -928,6 +929,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Marketplace: {
+      payload: Prisma.$MarketplacePayload<ExtArgs>
+      fields: Prisma.MarketplaceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MarketplaceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplacePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MarketplaceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplacePayload>
+        }
+        findFirst: {
+          args: Prisma.MarketplaceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplacePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MarketplaceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplacePayload>
+        }
+        findMany: {
+          args: Prisma.MarketplaceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplacePayload>[]
+        }
+        create: {
+          args: Prisma.MarketplaceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplacePayload>
+        }
+        createMany: {
+          args: Prisma.MarketplaceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MarketplaceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplacePayload>[]
+        }
+        delete: {
+          args: Prisma.MarketplaceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplacePayload>
+        }
+        update: {
+          args: Prisma.MarketplaceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplacePayload>
+        }
+        deleteMany: {
+          args: Prisma.MarketplaceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MarketplaceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MarketplaceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplacePayload>[]
+        }
+        upsert: {
+          args: Prisma.MarketplaceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketplacePayload>
+        }
+        aggregate: {
+          args: Prisma.MarketplaceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMarketplace>
+        }
+        groupBy: {
+          args: Prisma.MarketplaceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarketplaceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MarketplaceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarketplaceCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1040,6 +1115,9 @@ export const MonthlyBudgetScalarFieldEnum = {
   month: 'month',
   incomeTotal: 'incomeTotal',
   reserveAmount: 'reserveAmount',
+  carryOver2: 'carryOver2',
+  carryOver3: 'carryOver3',
+  carryOver4: 'carryOver4',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1061,6 +1139,15 @@ export const WeeklyExpenseScalarFieldEnum = {
 } as const
 
 export type WeeklyExpenseScalarFieldEnum = (typeof WeeklyExpenseScalarFieldEnum)[keyof typeof WeeklyExpenseScalarFieldEnum]
+
+
+export const MarketplaceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  createdAt: 'createdAt'
+} as const
+
+export type MarketplaceScalarFieldEnum = (typeof MarketplaceScalarFieldEnum)[keyof typeof MarketplaceScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1160,6 +1247,13 @@ export type EnumBankFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'Bank[]'
  */
 export type ListEnumBankFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bank[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -1292,6 +1386,7 @@ export type GlobalOmitConfig = {
   installment?: Prisma.InstallmentOmit
   monthlyBudget?: Prisma.MonthlyBudgetOmit
   weeklyExpense?: Prisma.WeeklyExpenseOmit
+  marketplace?: Prisma.MarketplaceOmit
 }
 
 /* Types for Logging */

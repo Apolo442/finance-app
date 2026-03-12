@@ -57,7 +57,8 @@ export const ModelName = {
   FixedExpense: 'FixedExpense',
   Installment: 'Installment',
   MonthlyBudget: 'MonthlyBudget',
-  WeeklyExpense: 'WeeklyExpense'
+  WeeklyExpense: 'WeeklyExpense',
+  Marketplace: 'Marketplace'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -149,6 +150,9 @@ export const MonthlyBudgetScalarFieldEnum = {
   month: 'month',
   incomeTotal: 'incomeTotal',
   reserveAmount: 'reserveAmount',
+  carryOver2: 'carryOver2',
+  carryOver3: 'carryOver3',
+  carryOver4: 'carryOver4',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -170,6 +174,15 @@ export const WeeklyExpenseScalarFieldEnum = {
 } as const
 
 export type WeeklyExpenseScalarFieldEnum = (typeof WeeklyExpenseScalarFieldEnum)[keyof typeof WeeklyExpenseScalarFieldEnum]
+
+
+export const MarketplaceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  createdAt: 'createdAt'
+} as const
+
+export type MarketplaceScalarFieldEnum = (typeof MarketplaceScalarFieldEnum)[keyof typeof MarketplaceScalarFieldEnum]
 
 
 export const SortOrder = {

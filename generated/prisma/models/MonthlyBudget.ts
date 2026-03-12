@@ -41,6 +41,9 @@ export type MonthlyBudgetMinAggregateOutputType = {
   month: string | null
   incomeTotal: runtime.Decimal | null
   reserveAmount: runtime.Decimal | null
+  carryOver2: boolean | null
+  carryOver3: boolean | null
+  carryOver4: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +53,9 @@ export type MonthlyBudgetMaxAggregateOutputType = {
   month: string | null
   incomeTotal: runtime.Decimal | null
   reserveAmount: runtime.Decimal | null
+  carryOver2: boolean | null
+  carryOver3: boolean | null
+  carryOver4: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -59,6 +65,9 @@ export type MonthlyBudgetCountAggregateOutputType = {
   month: number
   incomeTotal: number
   reserveAmount: number
+  carryOver2: number
+  carryOver3: number
+  carryOver4: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -80,6 +89,9 @@ export type MonthlyBudgetMinAggregateInputType = {
   month?: true
   incomeTotal?: true
   reserveAmount?: true
+  carryOver2?: true
+  carryOver3?: true
+  carryOver4?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -89,6 +101,9 @@ export type MonthlyBudgetMaxAggregateInputType = {
   month?: true
   incomeTotal?: true
   reserveAmount?: true
+  carryOver2?: true
+  carryOver3?: true
+  carryOver4?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -98,6 +113,9 @@ export type MonthlyBudgetCountAggregateInputType = {
   month?: true
   incomeTotal?: true
   reserveAmount?: true
+  carryOver2?: true
+  carryOver3?: true
+  carryOver4?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -194,6 +212,9 @@ export type MonthlyBudgetGroupByOutputType = {
   month: string
   incomeTotal: runtime.Decimal
   reserveAmount: runtime.Decimal
+  carryOver2: boolean
+  carryOver3: boolean
+  carryOver4: boolean
   createdAt: Date
   updatedAt: Date
   _count: MonthlyBudgetCountAggregateOutputType | null
@@ -226,6 +247,9 @@ export type MonthlyBudgetWhereInput = {
   month?: Prisma.StringFilter<"MonthlyBudget"> | string
   incomeTotal?: Prisma.DecimalFilter<"MonthlyBudget"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   reserveAmount?: Prisma.DecimalFilter<"MonthlyBudget"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  carryOver2?: Prisma.BoolFilter<"MonthlyBudget"> | boolean
+  carryOver3?: Prisma.BoolFilter<"MonthlyBudget"> | boolean
+  carryOver4?: Prisma.BoolFilter<"MonthlyBudget"> | boolean
   createdAt?: Prisma.DateTimeFilter<"MonthlyBudget"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MonthlyBudget"> | Date | string
 }
@@ -235,6 +259,9 @@ export type MonthlyBudgetOrderByWithRelationInput = {
   month?: Prisma.SortOrder
   incomeTotal?: Prisma.SortOrder
   reserveAmount?: Prisma.SortOrder
+  carryOver2?: Prisma.SortOrder
+  carryOver3?: Prisma.SortOrder
+  carryOver4?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -247,6 +274,9 @@ export type MonthlyBudgetWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.MonthlyBudgetWhereInput | Prisma.MonthlyBudgetWhereInput[]
   incomeTotal?: Prisma.DecimalFilter<"MonthlyBudget"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   reserveAmount?: Prisma.DecimalFilter<"MonthlyBudget"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  carryOver2?: Prisma.BoolFilter<"MonthlyBudget"> | boolean
+  carryOver3?: Prisma.BoolFilter<"MonthlyBudget"> | boolean
+  carryOver4?: Prisma.BoolFilter<"MonthlyBudget"> | boolean
   createdAt?: Prisma.DateTimeFilter<"MonthlyBudget"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MonthlyBudget"> | Date | string
 }, "id" | "month">
@@ -256,6 +286,9 @@ export type MonthlyBudgetOrderByWithAggregationInput = {
   month?: Prisma.SortOrder
   incomeTotal?: Prisma.SortOrder
   reserveAmount?: Prisma.SortOrder
+  carryOver2?: Prisma.SortOrder
+  carryOver3?: Prisma.SortOrder
+  carryOver4?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.MonthlyBudgetCountOrderByAggregateInput
@@ -273,6 +306,9 @@ export type MonthlyBudgetScalarWhereWithAggregatesInput = {
   month?: Prisma.StringWithAggregatesFilter<"MonthlyBudget"> | string
   incomeTotal?: Prisma.DecimalWithAggregatesFilter<"MonthlyBudget"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   reserveAmount?: Prisma.DecimalWithAggregatesFilter<"MonthlyBudget"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  carryOver2?: Prisma.BoolWithAggregatesFilter<"MonthlyBudget"> | boolean
+  carryOver3?: Prisma.BoolWithAggregatesFilter<"MonthlyBudget"> | boolean
+  carryOver4?: Prisma.BoolWithAggregatesFilter<"MonthlyBudget"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MonthlyBudget"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"MonthlyBudget"> | Date | string
 }
@@ -282,6 +318,9 @@ export type MonthlyBudgetCreateInput = {
   month: string
   incomeTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   reserveAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  carryOver2?: boolean
+  carryOver3?: boolean
+  carryOver4?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -291,6 +330,9 @@ export type MonthlyBudgetUncheckedCreateInput = {
   month: string
   incomeTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   reserveAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  carryOver2?: boolean
+  carryOver3?: boolean
+  carryOver4?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -300,6 +342,9 @@ export type MonthlyBudgetUpdateInput = {
   month?: Prisma.StringFieldUpdateOperationsInput | string
   incomeTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reserveAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  carryOver2?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carryOver3?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carryOver4?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -309,6 +354,9 @@ export type MonthlyBudgetUncheckedUpdateInput = {
   month?: Prisma.StringFieldUpdateOperationsInput | string
   incomeTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reserveAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  carryOver2?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carryOver3?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carryOver4?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -318,6 +366,9 @@ export type MonthlyBudgetCreateManyInput = {
   month: string
   incomeTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   reserveAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  carryOver2?: boolean
+  carryOver3?: boolean
+  carryOver4?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -327,6 +378,9 @@ export type MonthlyBudgetUpdateManyMutationInput = {
   month?: Prisma.StringFieldUpdateOperationsInput | string
   incomeTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reserveAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  carryOver2?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carryOver3?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carryOver4?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -336,6 +390,9 @@ export type MonthlyBudgetUncheckedUpdateManyInput = {
   month?: Prisma.StringFieldUpdateOperationsInput | string
   incomeTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reserveAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  carryOver2?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carryOver3?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carryOver4?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -345,6 +402,9 @@ export type MonthlyBudgetCountOrderByAggregateInput = {
   month?: Prisma.SortOrder
   incomeTotal?: Prisma.SortOrder
   reserveAmount?: Prisma.SortOrder
+  carryOver2?: Prisma.SortOrder
+  carryOver3?: Prisma.SortOrder
+  carryOver4?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -359,6 +419,9 @@ export type MonthlyBudgetMaxOrderByAggregateInput = {
   month?: Prisma.SortOrder
   incomeTotal?: Prisma.SortOrder
   reserveAmount?: Prisma.SortOrder
+  carryOver2?: Prisma.SortOrder
+  carryOver3?: Prisma.SortOrder
+  carryOver4?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -368,6 +431,9 @@ export type MonthlyBudgetMinOrderByAggregateInput = {
   month?: Prisma.SortOrder
   incomeTotal?: Prisma.SortOrder
   reserveAmount?: Prisma.SortOrder
+  carryOver2?: Prisma.SortOrder
+  carryOver3?: Prisma.SortOrder
+  carryOver4?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -377,6 +443,10 @@ export type MonthlyBudgetSumOrderByAggregateInput = {
   reserveAmount?: Prisma.SortOrder
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 
 
 export type MonthlyBudgetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -384,6 +454,9 @@ export type MonthlyBudgetSelect<ExtArgs extends runtime.Types.Extensions.Interna
   month?: boolean
   incomeTotal?: boolean
   reserveAmount?: boolean
+  carryOver2?: boolean
+  carryOver3?: boolean
+  carryOver4?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["monthlyBudget"]>
@@ -393,6 +466,9 @@ export type MonthlyBudgetSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   month?: boolean
   incomeTotal?: boolean
   reserveAmount?: boolean
+  carryOver2?: boolean
+  carryOver3?: boolean
+  carryOver4?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["monthlyBudget"]>
@@ -402,6 +478,9 @@ export type MonthlyBudgetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   month?: boolean
   incomeTotal?: boolean
   reserveAmount?: boolean
+  carryOver2?: boolean
+  carryOver3?: boolean
+  carryOver4?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["monthlyBudget"]>
@@ -411,11 +490,14 @@ export type MonthlyBudgetSelectScalar = {
   month?: boolean
   incomeTotal?: boolean
   reserveAmount?: boolean
+  carryOver2?: boolean
+  carryOver3?: boolean
+  carryOver4?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MonthlyBudgetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "month" | "incomeTotal" | "reserveAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["monthlyBudget"]>
+export type MonthlyBudgetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "month" | "incomeTotal" | "reserveAmount" | "carryOver2" | "carryOver3" | "carryOver4" | "createdAt" | "updatedAt", ExtArgs["result"]["monthlyBudget"]>
 
 export type $MonthlyBudgetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "MonthlyBudget"
@@ -425,6 +507,9 @@ export type $MonthlyBudgetPayload<ExtArgs extends runtime.Types.Extensions.Inter
     month: string
     incomeTotal: runtime.Decimal
     reserveAmount: runtime.Decimal
+    carryOver2: boolean
+    carryOver3: boolean
+    carryOver4: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["monthlyBudget"]>
@@ -854,6 +939,9 @@ export interface MonthlyBudgetFieldRefs {
   readonly month: Prisma.FieldRef<"MonthlyBudget", 'String'>
   readonly incomeTotal: Prisma.FieldRef<"MonthlyBudget", 'Decimal'>
   readonly reserveAmount: Prisma.FieldRef<"MonthlyBudget", 'Decimal'>
+  readonly carryOver2: Prisma.FieldRef<"MonthlyBudget", 'Boolean'>
+  readonly carryOver3: Prisma.FieldRef<"MonthlyBudget", 'Boolean'>
+  readonly carryOver4: Prisma.FieldRef<"MonthlyBudget", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"MonthlyBudget", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"MonthlyBudget", 'DateTime'>
 }

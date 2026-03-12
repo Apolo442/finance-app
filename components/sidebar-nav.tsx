@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { ThemeToggle } from "./theme-toggle";
 
 interface NavItem {
   href: string;
@@ -25,8 +27,10 @@ export function SidebarNav({
   monthLabel,
   userName,
 }: SidebarNavProps) {
-  return (
-    <>
+  const [open, setOpen] = useState(false);
+
+  const inner = (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Month navigator */}
       <div
         style={{
@@ -65,6 +69,7 @@ export function SidebarNav({
             <Link
               key={btn.href}
               href={btn.href}
+              onClick={() => setOpen(false)}
               style={{
                 flex: 1,
                 padding: "4px",
@@ -84,23 +89,23 @@ export function SidebarNav({
         </div>
       </div>
 
-      {/* Nav items */}
+      {/* Nav */}
       <nav style={{ flex: 1, padding: "12px" }}>
         {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
+            onClick={() => setOpen(false)}
             style={{
               display: "flex",
               alignItems: "center",
               gap: "10px",
-              padding: "8px",
+              padding: "10px 8px",
               borderRadius: "6px",
               textDecoration: "none",
               color: "var(--text-muted)",
-              fontSize: "13px",
+              fontSize: "14px",
               marginBottom: "2px",
-              transition: "all 0.1s",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "var(--bg-hover)";
@@ -126,26 +131,142 @@ export function SidebarNav({
         ))}
       </nav>
 
-      {/* User */}
+      {/* User + Theme */}
       <div
         style={{
           padding: "16px 20px",
           borderTop: "1px solid var(--border-subtle)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
         <p
           style={{
             fontSize: "12px",
             color: "var(--text-muted)",
-            marginBottom: "8px",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
+            flex: 1,
+            marginRight: "8px",
           }}
         >
           {userName}
         </p>
+        <ThemeToggle />
       </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar content */}
+      <div
+        className="hidden lg:flex"
+        style={{ flexDirection: "column", height: "100%" }}
+      >
+        {inner}
+      </div>
+
+      {/* Mobile: hamburger button */}
+      <button
+        className="lg:hidden"
+        onClick={() => setOpen(true)}
+        style={{
+          position: "fixed",
+          top: "16px",
+          left: "16px",
+          zIndex: 200,
+          background: "var(--bg-card)",
+          border: "1px solid var(--border)",
+          borderRadius: "6px",
+          padding: "8px 10px",
+          cursor: "pointer",
+          color: "var(--text)",
+          fontSize: "16px",
+          lineHeight: 1,
+        }}
+      >
+        ☰
+      </button>
+
+      {/* Mobile: overlay */}
+      {open && (
+        <div
+          className="lg:hidden"
+          style={{ position: "fixed", inset: 0, zIndex: 150, display: "flex" }}
+        >
+          {/* Backdrop */}
+          <div
+            onClick={() => setOpen(false)}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.6)",
+            }}
+          />
+          {/* Drawer */}
+          <div
+            style={{
+              position: "relative",
+              zIndex: 1,
+              width: "260px",
+              background: "var(--bg)",
+              borderRight: "1px solid var(--border)",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* Close button */}
+            <div
+              style={{
+                padding: "16px 20px 0",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <div
+                  style={{
+                    width: "6px",
+                    height: "6px",
+                    borderRadius: "50%",
+                    background: "var(--accent)",
+                    boxShadow: "0 0 6px var(--accent)",
+                  }}
+                />
+                <span
+                  className="mono"
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--text-muted)",
+                    letterSpacing: "0.1em",
+                  }}
+                >
+                  GESTOR FIN.
+                </span>
+              </div>
+              <button
+                onClick={() => setOpen(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--text-muted)",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                }}
+              >
+                ×
+              </button>
+            </div>
+            {inner}
+          </div>
+        </div>
+      )}
     </>
   );
 }

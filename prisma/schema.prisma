@@ -104,4 +104,11 @@ enum ExpenseType {
   CREDITO
   PIX
   RESERVADO
+  OUTROS
+}
+
+model Marketplace {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
 }

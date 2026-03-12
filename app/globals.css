@@ -1,20 +1,39 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500;600&display=swap");
 @import "tailwindcss";
 
-:root {
-  --bg: #0a0a0a;
-  --bg-card: #111111;
-  --bg-hover: #1a1a1a;
-  --border: #222222;
-  --border-subtle: #1a1a1a;
-  --text: #e8e8e8;
-  --text-muted: #555555;
-  --text-dim: #333333;
+/* ── Dark theme (default) ── */
+:root,
+.theme-dark {
+  --bg: #0c0c0c;
+  --bg-card: #141414;
+  --bg-hover: #1c1c1c;
+  --border: #2a2a2a;
+  --border-subtle: #1e1e1e;
+  --text: #f0f0f0;
+  --text-muted: #888888;
+  --text-dim: #444444;
   --accent: #4ade80;
   --accent-dim: #166534;
-  --accent-glow: rgba(74, 222, 128, 0.08);
+  --accent-glow: rgba(74, 222, 128, 0.07);
   --red: #f87171;
   --yellow: #fbbf24;
+}
+
+/* ── Light theme ── */
+.theme-light {
+  --bg: #f5f0e8;
+  --bg-card: #ede8df;
+  --bg-hover: #e4ddd2;
+  --border: #ccc5b8;
+  --border-subtle: #d8d1c6;
+  --text: #1a1714;
+  --text-muted: #6b6560;
+  --text-dim: #a09890;
+  --accent: #16803c;
+  --accent-dim: #bbf7d0;
+  --accent-glow: rgba(22, 128, 60, 0.08);
+  --red: #dc2626;
+  --yellow: #d97706;
 }
 
 * {
@@ -27,7 +46,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: "DM Sans", sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
@@ -50,4 +69,16 @@ body {
 ::selection {
   background: var(--accent-dim);
   color: var(--accent);
+}
+
+@media (max-width: 1023px) {
+  .page-content {
+    padding: 64px 16px 32px 16px;
+  }
+}
+@media (min-width: 1024px) {
+  .page-content {
+    margin-left: 220px;
+    padding: 32px 40px;
+  }
 }

@@ -76,3 +76,8 @@ export type MonthlyBudget = Prisma.MonthlyBudgetModel
  * 
  */
 export type WeeklyExpense = Prisma.WeeklyExpenseModel
+/**
+ * Model Marketplace
+ * 
+ */
+export type Marketplace = Prisma.MarketplaceModel

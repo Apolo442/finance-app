@@ -140,3 +140,42 @@ export async function saveCarryOver(
   });
   return res.json();
 }
+
+export async function fetchMarketplaces() {
+  const res = await fetch("/api/finance/marketplaces");
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export async function createMarketplace(name: string) {
+  const res = await fetch("/api/finance/marketplaces", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  return res.json();
+}
+
+export async function deleteMarketplace(id: string) {
+  const res = await fetch("/api/finance/marketplaces", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  return res.json();
+}
+
+export async function advanceInstallment(data: {
+  id: string;
+  month: string;
+  advanceCount: number;
+  destination: "week" | "fixed";
+  week?: number;
+}) {
+  const res = await fetch("/api/finance/installments", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}

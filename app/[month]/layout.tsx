@@ -1,6 +1,6 @@
-// import Link from "next/link";
 import { auth, signOut } from "@/lib/auth";
 import { SidebarNav } from "@/components/sidebar-nav";
+import { ExportButtons } from "@/components/monthly/export-buttons";
 
 function getMonthLabel(month: string) {
   const [year, m] = month.split("-");
@@ -27,7 +27,6 @@ export default async function DashboardLayout({
   const { month } = await params;
   const session = await auth();
   const { prev, next } = getAdjacentMonths(month);
-
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
@@ -35,22 +34,20 @@ export default async function DashboardLayout({
     { href: `/${month}`, label: "Visão Geral", code: "01" },
     { href: `/${month}/fixed`, label: "Gastos Fixos", code: "02" },
     { href: `/${month}/installments`, label: "Parcelamentos", code: "03" },
-    { href: `/${month}/weekly`, label: "Semanas", code: "04" },
-    { href: `/${month}/analytics`, label: "Analytics", code: "05" },
+    { href: `/${month}/analytics`, label: "Analytics", code: "04" },
   ];
-
   return (
     <div
       style={{ display: "flex", minHeight: "100vh", background: "var(--bg)" }}
     >
+      {/* ── Desktop sidebar ── */}
       <aside
+        className="hidden lg:flex"
         style={{
           width: "220px",
           minHeight: "100vh",
           borderRight: "1px solid var(--border)",
-          display: "flex",
           flexDirection: "column",
-          padding: "24px 0",
           position: "fixed",
           top: 0,
           left: 0,
@@ -59,10 +56,9 @@ export default async function DashboardLayout({
           zIndex: 10,
         }}
       >
-        {/* Logo */}
         <div
           style={{
-            padding: "0 20px 24px",
+            padding: "24px 20px 20px",
             borderBottom: "1px solid var(--border-subtle)",
           }}
         >
@@ -98,8 +94,7 @@ export default async function DashboardLayout({
           userName={session?.user?.name}
         />
 
-        {/* Sign out — server action */}
-        <div style={{ padding: "0 20px 8px" }}>
+        <div style={{ padding: "0 20px 16px" }}>
           <form
             action={async () => {
               "use server";
@@ -125,15 +120,47 @@ export default async function DashboardLayout({
         </div>
       </aside>
 
+      {/* ── Mobile drawer (hamburger inside SidebarNav) ── */}
+      <div className="lg:hidden">
+        <SidebarNav
+          navItems={navItems}
+          prev={prev}
+          next={next}
+          currentMonth={currentMonth}
+          monthLabel={getMonthLabel(month)}
+          userName={session?.user?.name}
+        />
+      </div>
+
+      {/* ── Main content ── */}
       <main
         style={{
-          marginLeft: "220px",
           flex: 1,
-          padding: "32px 40px",
           minWidth: 0,
         }}
       >
-        {children}
+        {/* padding-top: 64px no mobile para não ficar sob o hamburger */}
+        {/* margin-left: 220px no desktop para não ficar sob a sidebar */}
+        <style>{`
+          @media (max-width: 1023px) {
+            .page-content { padding: 64px 16px 32px 16px; }
+          }
+          @media (min-width: 1024px) {
+            .page-content { margin-left: 220px; padding: 32px 40px; }
+          }
+        `}</style>
+        <div className="page-content">
+          {children}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: "20px",
+            }}
+          >
+            <ExportButtons month={month} />
+          </div>
+        </div>
       </main>
     </div>
   );
