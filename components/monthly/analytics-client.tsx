@@ -35,6 +35,8 @@ interface AnalyticsData {
   byWeek: { name: string; value: number }[];
   byMonthYear: { name: string; value: number }[];
   byMarketplace: MarketplaceResult[];
+  annualByCategory?: { name: string; value: number }[];
+  annualByMarketplace?: MarketplaceResult[];
   marketplaces: Marketplace[];
   totals: {
     total: number;
@@ -61,6 +63,19 @@ const COLORS = [
   "#86efac",
   "#fca5a5",
 ];
+
+const MARKETPLACE_COLORS: Record<string, string> = {
+  amazon: "#3b82f6", // Azul
+  "mercado livre": "#facc15", // Amarelo
+  shopee: "#f97316", // Laranja
+  ifood: "#ea1d2c", // Vermelho
+  uber: "#a8a29e", // Cinza
+};
+
+function getMarketplaceColor(name: string, index: number) {
+  const normalizedName = name.toLowerCase().trim();
+  return MARKETPLACE_COLORS[normalizedName] || COLORS[index % COLORS.length];
+}
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -108,8 +123,6 @@ function MarketplaceBI({
   const [deleting, setDeleting] = useState<string | null>(null);
   const [showManage, setShowManage] = useState(false);
 
-  const maxTotal = byMarketplace[0]?.total ?? 1;
-
   async function handleAdd() {
     if (!newName.trim()) return;
     setLoading(true);
@@ -145,6 +158,7 @@ function MarketplaceBI({
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
         borderRadius: "8px",
+        height: "100%", // Garante que estique igual ao card de Categoria
       }}
     >
       <div
@@ -163,7 +177,7 @@ function MarketplaceBI({
             letterSpacing: "0.1em",
           }}
         >
-          GASTOS POR MARKETPLACE
+          DISTRIBUIÇÃO POR MARKETPLACE
         </p>
         <button
           onClick={() => setShowManage((v) => !v)}
@@ -274,63 +288,87 @@ function MarketplaceBI({
             : "Nenhum gasto encontrado para as lojas cadastradas neste mês."}
         </p>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          {byMarketplace.map((m) => {
-            const pct = (m.total / maxTotal) * 100;
-            return (
-              <div key={m.id}>
+        <>
+          <ResponsiveContainer width="100%" height={220}>
+            <PieChart>
+              <Pie
+                data={byMarketplace.map((item, i) => ({
+                  ...item,
+                  value: item.total, // Recharts usa a propriedade 'value'
+                  fill: getMarketplaceColor(item.name, i),
+                }))}
+                cx="50%"
+                cy="50%"
+                innerRadius={55}
+                outerRadius={90}
+                paddingAngle={2}
+                dataKey="value"
+                stroke="none"
+              />
+              <Tooltip
+                {...tooltipStyle}
+                formatter={(value) => [fmt(Number(value)), ""]}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "6px",
+              marginTop: "8px",
+            }}
+          >
+            {byMarketplace.map((m, i) => (
+              <div
+                key={m.id}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 <div
                   style={{
                     display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "4px",
-                  }}
-                >
-                  <span style={{ fontSize: "13px", color: "var(--text)" }}>
-                    {m.name}
-                  </span>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "12px",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span
-                      className="mono"
-                      style={{ fontSize: "11px", color: "var(--text-muted)" }}
-                    >
-                      {m.count} compra{m.count !== 1 ? "s" : ""}
-                    </span>
-                    <span
-                      className="mono"
-                      style={{ fontSize: "13px", color: "var(--text)" }}
-                    >
-                      {fmt(m.total)}
-                    </span>
-                  </div>
-                </div>
-                <div
-                  style={{
-                    height: "3px",
-                    background: "var(--border)",
-                    borderRadius: "2px",
+                    alignItems: "center",
+                    gap: "8px",
                   }}
                 >
                   <div
                     style={{
-                      height: "100%",
-                      width: `${pct}%`,
-                      background: "var(--accent)",
+                      width: "8px",
+                      height: "8px",
                       borderRadius: "2px",
-                      transition: "width 0.3s",
+                      background: getMarketplaceColor(m.name, i),
+                      flexShrink: 0,
                     }}
                   />
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    {m.name}
+                  </span>
+                  <span
+                    className="mono"
+                    style={{ fontSize: "10px", color: "var(--text-dim)" }}
+                  >
+                    ({m.count} compra{m.count !== 1 ? "s" : ""})
+                  </span>
                 </div>
+                <span
+                  className="mono"
+                  style={{ fontSize: "12px", color: "var(--text)" }}
+                >
+                  {fmt(m.total)}
+                </span>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
@@ -343,7 +381,6 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
   const monthLabel = new Date(data.month + "-02")
     .toLocaleDateString("pt-BR", { month: "long" })
     .replace(/^\w/, (c) => c.toUpperCase());
-
   const hasMonthData = data.totals.total > 0;
   const hasYearData = data.byMonthYear.some((m) => m.value > 0);
 
@@ -404,7 +441,9 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
               style={{
                 padding: "6px 14px",
                 background: view === v ? "var(--accent-dim)" : "var(--bg-card)",
-                border: `1px solid ${view === v ? "var(--accent)" : "var(--border)"}`,
+                border: `1px solid ${
+                  view === v ? "var(--accent)" : "var(--border)"
+                }`,
                 borderRadius: "5px",
                 color: view === v ? "var(--accent)" : "var(--text-muted)",
                 fontSize: "11px",
@@ -497,12 +536,12 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                 ))}
               </div>
 
-              {/* Pizza + Barras */}
+              {/* Pizza de Categorias + Pizza de Marketplace (Lado a Lado) */}
               <div
                 className="grid grid-cols-1 lg:grid-cols-2 gap-4"
                 style={{ marginBottom: "24px" }}
               >
-                {/* Pizza */}
+                {/* Pizza Categoria */}
                 <div
                   style={{
                     padding: "20px",
@@ -594,67 +633,68 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                   )}
                 </div>
 
-                {/* Barras */}
-                <div
-                  style={{
-                    padding: "20px",
-                    background: "var(--bg-card)",
-                    border: "1px solid var(--border)",
-                    borderRadius: "8px",
-                  }}
-                >
-                  <SectionTitle>GASTOS POR SEMANA</SectionTitle>
-                  <ResponsiveContainer width="100%" height={260}>
-                    <BarChart data={data.byWeek} barSize={32}>
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="var(--border)"
-                        vertical={false}
-                      />
-                      <XAxis
-                        dataKey="name"
-                        tick={{
-                          fill: "var(--text-muted)",
-                          fontSize: 11,
-                          fontFamily: "DM Mono",
-                        }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <YAxis
-                        tick={{
-                          fill: "var(--text-dim)",
-                          fontSize: 10,
-                          fontFamily: "DM Mono",
-                        }}
-                        axisLine={false}
-                        tickLine={false}
-                        tickFormatter={(v) => `R$${v}`}
-                        width={56}
-                      />
-                      <Tooltip
-                        cursor={false}
-                        {...tooltipStyle}
-                        formatter={(value) => [fmt(Number(value)), ""]}
-                      />
-                      <Bar
-                        dataKey="value"
-                        fill="var(--accent)"
-                        radius={[4, 4, 0, 0]}
-                        cursor="default"
-                        activeBar={false}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                {/* Marketplace BI (Agora como Pizza lado a lado com Categorias) */}
+                <MarketplaceBI
+                  byMarketplace={data.byMarketplace}
+                  marketplaces={data.marketplaces}
+                  onRefresh={() => router.refresh()}
+                />
               </div>
 
-              {/* Marketplace BI */}
-              <MarketplaceBI
-                byMarketplace={data.byMarketplace}
-                marketplaces={data.marketplaces}
-                onRefresh={() => router.refresh()}
-              />
+              {/* Barras Gastos por Semana (Agora Ocupando 100% da Largura abaixo das Pizzas) */}
+              <div
+                style={{
+                  padding: "20px",
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "8px",
+                  marginBottom: "24px",
+                }}
+              >
+                <SectionTitle>GASTOS POR SEMANA</SectionTitle>
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={data.byWeek} barSize={32}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="var(--border)"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="name"
+                      tick={{
+                        fill: "var(--text-muted)",
+                        fontSize: 11,
+                        fontFamily: "DM Mono",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{
+                        fill: "var(--text-dim)",
+                        fontSize: 10,
+                        fontFamily: "DM Mono",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={(v) => `R$${v}`}
+                      width={56}
+                    />
+                    <Tooltip
+                      cursor={false}
+                      {...tooltipStyle}
+                      formatter={(value) => [fmt(Number(value)), ""]}
+                    />
+                    <Bar
+                      dataKey="value"
+                      fill="var(--accent)"
+                      radius={[4, 4, 0, 0]}
+                      cursor="default"
+                      activeBar={false}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </>
           )}
         </>
@@ -762,6 +802,208 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                       </p>
                     </div>
                   ))}
+                </div>
+              </div>
+              <div
+                className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+                style={{ marginTop: "24px" }}
+              >
+                {/* Pizza Categoria Anual */}
+                <div
+                  style={{
+                    padding: "20px",
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                  }}
+                >
+                  <SectionTitle>DISTRIBUIÇÃO ANUAL POR CATEGORIA</SectionTitle>
+                  {!data.annualByCategory ||
+                  data.annualByCategory.length === 0 ? (
+                    <p style={{ fontSize: "12px", color: "var(--text-dim)" }}>
+                      Sem categorias registradas no ano.
+                    </p>
+                  ) : (
+                    <>
+                      <ResponsiveContainer width="100%" height={220}>
+                        <PieChart>
+                          <Pie
+                            data={data.annualByCategory.map((item, i) => ({
+                              ...item,
+                              fill: COLORS[i % COLORS.length],
+                            }))}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={55}
+                            outerRadius={90}
+                            paddingAngle={2}
+                            dataKey="value"
+                            stroke="none"
+                          />
+                          <Tooltip
+                            {...tooltipStyle}
+                            formatter={(value) => [fmt(Number(value)), ""]}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "6px",
+                          marginTop: "8px",
+                        }}
+                      >
+                        {data.annualByCategory.map((cat, i) => (
+                          <div
+                            key={cat.name}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: "8px",
+                                  height: "8px",
+                                  borderRadius: "2px",
+                                  background: COLORS[i % COLORS.length],
+                                  flexShrink: 0,
+                                }}
+                              />
+                              <span
+                                style={{
+                                  fontSize: "12px",
+                                  color: "var(--text-muted)",
+                                }}
+                              >
+                                {cat.name}
+                              </span>
+                            </div>
+                            <span
+                              className="mono"
+                              style={{ fontSize: "12px", color: "var(--text)" }}
+                            >
+                              {fmt(cat.value)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Pizza Marketplace Anual */}
+                <div
+                  style={{
+                    padding: "20px",
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                  }}
+                >
+                  <SectionTitle>
+                    DISTRIBUIÇÃO ANUAL POR MARKETPLACE
+                  </SectionTitle>
+                  {!data.annualByMarketplace ||
+                  data.annualByMarketplace.length === 0 ? (
+                    <p style={{ fontSize: "12px", color: "var(--text-dim)" }}>
+                      Sem marketplaces registrados no ano.
+                    </p>
+                  ) : (
+                    <>
+                      <ResponsiveContainer width="100%" height={220}>
+                        <PieChart>
+                          <Pie
+                            data={data.annualByMarketplace.map((item, i) => ({
+                              ...item,
+                              value: item.total,
+                              fill: getMarketplaceColor(item.name, i),
+                            }))}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={55}
+                            outerRadius={90}
+                            paddingAngle={2}
+                            dataKey="value"
+                            stroke="none"
+                          />
+                          <Tooltip
+                            {...tooltipStyle}
+                            formatter={(value) => [fmt(Number(value)), ""]}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "6px",
+                          marginTop: "8px",
+                        }}
+                      >
+                        {data.annualByMarketplace.map((m, i) => (
+                          <div
+                            key={m.id}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: "8px",
+                                  height: "8px",
+                                  borderRadius: "2px",
+                                  background: getMarketplaceColor(m.name, i),
+                                  flexShrink: 0,
+                                }}
+                              />
+                              <span
+                                style={{
+                                  fontSize: "12px",
+                                  color: "var(--text-muted)",
+                                }}
+                              >
+                                {m.name}
+                              </span>
+                              <span
+                                className="mono"
+                                style={{
+                                  fontSize: "10px",
+                                  color: "var(--text-dim)",
+                                }}
+                              >
+                                ({m.count} compras)
+                              </span>
+                            </div>
+                            <span
+                              className="mono"
+                              style={{ fontSize: "12px", color: "var(--text)" }}
+                            >
+                              {fmt(m.total)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

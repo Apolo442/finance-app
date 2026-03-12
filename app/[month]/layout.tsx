@@ -150,6 +150,16 @@ export default async function DashboardLayout({
           }
         `}</style>
         <div className="page-content">
+          {/* Botão de Exportação no topo */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: "24px",
+            }}
+          >
+            <ExportButtons month={month} />
+          </div>
           {children}
           <div
             style={{
@@ -157,9 +167,7 @@ export default async function DashboardLayout({
               justifyContent: "flex-end",
               marginBottom: "20px",
             }}
-          >
-            <ExportButtons month={month} />
-          </div>
+          ></div>
         </div>
       </main>
     </div>

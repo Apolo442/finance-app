@@ -78,90 +78,192 @@ async function fetchReport(month: string): Promise<ReportData> {
   const res = await fetch(`/api/finance/report?month=${month}`);
   return res.json();
 }
-
 async function exportXLSX(data: ReportData) {
-  const XLSX = await import("xlsx");
-  const wb = XLSX.utils.book_new();
+  // Importação dinâmica para não pesar o carregamento inicial da página
+  const ExcelJSModule = await import("exceljs");
+  const ExcelJS = ExcelJSModule.default || ExcelJSModule;
 
-  // ── Composição ──
-  const compRows = [
-    ["COMPOSIÇÃO DO MÊS", ""],
+  const workbook = new ExcelJS.Workbook();
+  const ws = workbook.addWorksheet(`Relatório ${data.month}`);
+
+  // Configuração de larguras das colunas
+  ws.columns = [
+    { width: 16 }, // A: Data / Entradas
+    { width: 30 }, // B: Títulos
+    { width: 16 }, // C: Tipos / Banco
+    { width: 18 }, // D: Banco / Categoria
+    { width: 22 }, // E: Categoria / Valor
+    { width: 16 }, // F: Valor
+  ];
+
+  // Definições de Estilos Visuais
+  const headerFill: import("exceljs").FillPattern = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FF16A34A" },
+  };
+  const alternateFill: import("exceljs").FillPattern = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FFF5F5F5" },
+  };
+  const borderStyle: Partial<import("exceljs").Borders> = {
+    top: { style: "thin", color: { argb: "FFDDDDDD" } },
+    left: { style: "thin", color: { argb: "FFDDDDDD" } },
+    bottom: { style: "thin", color: { argb: "FFDDDDDD" } },
+    right: { style: "thin", color: { argb: "FFDDDDDD" } },
+  };
+
+  // Função utilitária para criar cabeçalhos de seções
+  function addHeader(title: string, headers: string[]) {
+    ws.addRow([]); // Espaçamento
+    const titleRow = ws.addRow([title.toUpperCase()]);
+    titleRow.font = { bold: true, size: 11, color: { argb: "FF16A34A" } };
+
+    const headerRow = ws.addRow(headers);
+    headerRow.eachCell((cell) => {
+      cell.fill = headerFill;
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10 };
+      cell.border = borderStyle;
+    });
+  }
+
+  // Função utilitária para aplicar máscara de moeda (R$)
+  function formatValueCell(cell: import("exceljs").Cell) {
+    cell.numFmt = '"R$ "#,##0.00';
+  }
+
+  // ── COMPOSIÇÃO ──
+  addHeader("Composição do Mês", ["ITEM", "VALOR"]);
+  const compData = [
     ["Entrada", data.budget.incomeTotal],
     ["Reserva", data.budget.reserveAmount],
     ["Gastos Fixos", data.budget.totalFixed],
     ["Parcelamentos", data.budget.totalInstallments],
     ["Saldo Livre", data.budget.netRemainder],
-    ["Gasto Semanal", data.budget.weeklyAllocation],
+    ["Gasto Semanal (÷4)", data.budget.weeklyAllocation],
   ];
-  const wsComp = XLSX.utils.aoa_to_sheet(compRows);
-  wsComp["!cols"] = [{ wch: 22 }, { wch: 16 }];
-  XLSX.utils.book_append_sheet(wb, wsComp, "Composição");
+  compData.forEach((row, i) => {
+    const r = ws.addRow(row);
+    formatValueCell(r.getCell(2));
+    r.eachCell((c) => {
+      c.border = borderStyle;
+      if (i % 2 === 1) c.fill = alternateFill;
+    });
+  });
 
-  // ── Gastos Fixos ──
-  const fixedRows = [
-    ["TÍTULO", "BANCO", "CATEGORIA", "VALOR"],
-    ...data.fixed.map((f) => [
-      f.title,
-      BANK_LABELS[f.bank] ?? f.bank,
-      f.category ?? "",
-      f.value,
-    ]),
-    ["", "", "TOTAL", data.fixed.reduce((a, f) => a + f.value, 0)],
-  ];
-  const wsFixed = XLSX.utils.aoa_to_sheet(fixedRows);
-  wsFixed["!cols"] = [{ wch: 28 }, { wch: 14 }, { wch: 20 }, { wch: 14 }];
-  XLSX.utils.book_append_sheet(wb, wsFixed, "Gastos Fixos");
-
-  // ── Parcelamentos ──
-  const instRows = [
-    ["TÍTULO", "PARCELA", "BANCO", "CATEGORIA", "VALOR"],
-    ...data.installments.map((i) => [
-      i.title,
-      `${i.currentInstallment}/${i.totalInstallments}`,
-      BANK_LABELS[i.bank] ?? i.bank,
-      i.category ?? "",
-      i.value,
-    ]),
-    ["", "", "", "TOTAL", data.installments.reduce((a, i) => a + i.value, 0)],
-  ];
-  const wsInst = XLSX.utils.aoa_to_sheet(instRows);
-  wsInst["!cols"] = [
-    { wch: 28 },
-    { wch: 10 },
-    { wch: 14 },
-    { wch: 20 },
-    { wch: 14 },
-  ];
-  XLSX.utils.book_append_sheet(wb, wsInst, "Parcelamentos");
-
-  // ── Semanas ──
-  for (const w of data.weeklyByWeek) {
-    const rows = [
-      [`SEMANA ${w.week}`, "", "", "", "", ""],
-      ["DATA", "TÍTULO", "TIPO", "BANCO", "CATEGORIA", "VALOR"],
-      ...w.expenses.map((e) => [
-        e.date ?? "",
-        e.title,
-        TYPE_LABELS[e.type] ?? e.type,
-        e.bank ? (BANK_LABELS[e.bank] ?? e.bank) : "",
-        e.category ?? "",
-        e.value,
-      ]),
-      ["", "", "", "", "TOTAL", w.total],
-    ];
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws["!cols"] = [
-      { wch: 12 },
-      { wch: 28 },
-      { wch: 10 },
-      { wch: 14 },
-      { wch: 20 },
-      { wch: 14 },
-    ];
-    XLSX.utils.book_append_sheet(wb, ws, `Semana ${w.week}`);
+  // ── GASTOS FIXOS ──
+  addHeader("Gastos Fixos", ["TÍTULO", "BANCO", "CATEGORIA", "VALOR"]);
+  if (data.fixed.length === 0) {
+    const r = ws.addRow(["Nenhum gasto fixo", "-", "-", 0]);
+    r.eachCell((c) => (c.border = borderStyle));
+  } else {
+    data.fixed.forEach((f, i) => {
+      const r = ws.addRow([
+        f.title,
+        BANK_LABELS[f.bank] ?? f.bank,
+        f.category ?? "—",
+        f.value,
+      ]);
+      formatValueCell(r.getCell(4));
+      r.eachCell((c) => {
+        c.border = borderStyle;
+        if (i % 2 === 1) c.fill = alternateFill;
+      });
+    });
   }
+  const totalFixosRow = ws.addRow([
+    "",
+    "",
+    "TOTAL FIXOS",
+    data.budget.totalFixed,
+  ]);
+  totalFixosRow.font = { bold: true };
+  formatValueCell(totalFixosRow.getCell(4));
 
-  XLSX.writeFile(wb, `relatorio-${data.month}.xlsx`);
+  // ── PARCELAMENTOS ──
+  addHeader("Parcelamentos", [
+    "TÍTULO",
+    "PARCELA",
+    "BANCO",
+    "CATEGORIA",
+    "VALOR",
+  ]);
+  if (data.installments.length === 0) {
+    const r = ws.addRow(["Nenhum parcelamento", "-", "-", "-", 0]);
+    r.eachCell((c) => (c.border = borderStyle));
+  } else {
+    data.installments.forEach((inst, i) => {
+      const r = ws.addRow([
+        inst.title,
+        `${inst.currentInstallment}/${inst.totalInstallments}`,
+        BANK_LABELS[inst.bank] ?? inst.bank,
+        inst.category ?? "—",
+        inst.value,
+      ]);
+      formatValueCell(r.getCell(5));
+      r.eachCell((c) => {
+        c.border = borderStyle;
+        if (i % 2 === 1) c.fill = alternateFill;
+      });
+    });
+  }
+  const totalInstRow = ws.addRow([
+    "",
+    "",
+    "",
+    "TOTAL PARCELAS",
+    data.budget.totalInstallments,
+  ]);
+  totalInstRow.font = { bold: true };
+  formatValueCell(totalInstRow.getCell(5));
+
+  // ── SEMANAS ──
+  data.weeklyByWeek.forEach((w) => {
+    addHeader(`Semana ${w.week}`, [
+      "DATA",
+      "TÍTULO",
+      "TIPO",
+      "BANCO",
+      "CATEGORIA",
+      "VALOR",
+    ]);
+    if (w.expenses.length === 0) {
+      const r = ws.addRow(["-", "Nenhum gasto na semana", "-", "-", "-", 0]);
+      r.eachCell((c) => (c.border = borderStyle));
+    } else {
+      w.expenses.forEach((e, i) => {
+        const r = ws.addRow([
+          e.date ?? "—",
+          e.title,
+          TYPE_LABELS[e.type] ?? e.type,
+          e.bank ? (BANK_LABELS[e.bank] ?? e.bank) : "—",
+          e.category ?? "—",
+          e.value,
+        ]);
+        formatValueCell(r.getCell(6));
+        r.eachCell((c) => {
+          c.border = borderStyle;
+          if (i % 2 === 1) c.fill = alternateFill;
+        });
+      });
+    }
+    const totalSemanaRow = ws.addRow(["", "", "", "", "TOTAL SEMANA", w.total]);
+    totalSemanaRow.font = { bold: true };
+    formatValueCell(totalSemanaRow.getCell(6));
+  });
+
+  // Gerar e disparar o download no navegador
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `relatorio-${data.month}.xlsx`;
+  a.click();
+  window.URL.revokeObjectURL(url);
 }
 
 async function exportPDF(data: ReportData, monthLabel: string) {

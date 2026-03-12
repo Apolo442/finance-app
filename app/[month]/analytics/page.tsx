@@ -21,12 +21,23 @@ async function getAnalyticsData(month: string) {
     orderBy: { name: "asc" },
   });
 
+  // --- Visão Mensal: Categorias ---
   const categoryMap: Record<string, number> = {};
   for (const e of monthlyExpenses) {
     const key = e.category ?? "Outros";
     categoryMap[key] = (categoryMap[key] ?? 0) + Number(e.value);
   }
   const byCategory = Object.entries(categoryMap)
+    .map(([name, value]) => ({ name, value: Math.round(value * 100) / 100 }))
+    .sort((a, b) => b.value - a.value);
+
+  // --- Visão Anual: Categorias ---
+  const annualCategoryMap: Record<string, number> = {};
+  for (const e of yearlyExpenses) {
+    const key = e.category ?? "Outros";
+    annualCategoryMap[key] = (annualCategoryMap[key] ?? 0) + Number(e.value);
+  }
+  const annualByCategory = Object.entries(annualCategoryMap)
     .map(([name, value]) => ({ name, value: Math.round(value * 100) / 100 }))
     .sort((a, b) => b.value - a.value);
 
@@ -64,11 +75,22 @@ async function getAnalyticsData(month: string) {
     };
   });
 
+  // --- Visão Mensal: Marketplaces ---
   const expensesForMarketplace = monthlyExpenses.map((e) => ({
     title: e.title,
     value: Number(e.value),
   }));
   const byMarketplace = matchMarketplaces(expensesForMarketplace, marketplaces);
+
+  // --- Visão Anual: Marketplaces ---
+  const yearlyExpensesForMarketplace = yearlyExpenses.map((e) => ({
+    title: e.title,
+    value: Number(e.value),
+  }));
+  const annualByMarketplace = matchMarketplaces(
+    yearlyExpensesForMarketplace,
+    marketplaces,
+  );
 
   const totalMonth = monthlyExpenses.reduce(
     (acc, e) => acc + Number(e.value),
@@ -92,6 +114,8 @@ async function getAnalyticsData(month: string) {
     byCategory,
     byWeek,
     byMonthYear,
+    annualByCategory, // Propriedade adicionada
+    annualByMarketplace, // Propriedade adicionada
     byMarketplace,
     marketplaces,
     totals: {
