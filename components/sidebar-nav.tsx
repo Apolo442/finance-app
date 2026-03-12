@@ -67,7 +67,7 @@ export function SidebarNav({
             { href: `/${next}`, label: "→" },
           ].map((btn) => (
             <Link
-              key={btn.href}
+              key={`${btn.label}-${btn.href}`}
               href={btn.href}
               onClick={() => setOpen(false)}
               style={{

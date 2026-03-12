@@ -10,27 +10,32 @@ import { OverviewClient } from "@/components/monthly/overview-client";
 async function getMonthData(month: string) {
   const [year, m] = month.split("-").map(Number);
 
-  const budget = await prisma.monthlyBudget.upsert({
-    where: { month },
-    update: {},
-    create: {
-      month,
-      incomeTotal: 1000,
-      reserveAmount: 0,
-      carryOver2: false,
-      carryOver3: false,
-      carryOver4: false,
-    },
-  });
+  const [budget, fixed, allInstallments, weeklyExpenses] = await Promise.all([
+    prisma.monthlyBudget.upsert({
+      where: { month },
+      update: {},
+      create: {
+        month,
+        incomeTotal: 1000,
+        reserveAmount: 0,
+        carryOver2: false,
+        carryOver3: false,
+        carryOver4: false,
+      },
+    }),
+    prisma.fixedExpense.findMany({
+      where: {
+        validFrom: { lte: month },
+        OR: [{ deletedAt: null }, { deletedAt: { gt: month } }],
+      },
+    }),
+    prisma.installment.findMany(),
+    prisma.weeklyExpense.findMany({
+      where: { month },
+      orderBy: [{ week: "asc" }, { createdAt: "asc" }],
+    }),
+  ]);
 
-  const fixed = await prisma.fixedExpense.findMany({
-    where: {
-      validFrom: { lte: month },
-      OR: [{ deletedAt: null }, { deletedAt: { gt: month } }],
-    },
-  });
-
-  const allInstallments = await prisma.installment.findMany();
   const installments = allInstallments.filter((inst) => {
     const [sy, sm] = inst.startMonth.split("-").map(Number);
     const elapsed = year * 12 + m - (sy * 12 + sm);
@@ -38,11 +43,6 @@ async function getMonthData(month: string) {
       elapsed >= 0 &&
       inst.currentInstallment + elapsed <= inst.totalInstallments
     );
-  });
-
-  const weeklyExpenses = await prisma.weeklyExpense.findMany({
-    where: { month },
-    orderBy: [{ week: "asc" }, { createdAt: "asc" }],
   });
 
   const incomeTotal = Number(budget?.incomeTotal ?? 0);
