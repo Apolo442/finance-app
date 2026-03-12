@@ -3,44 +3,79 @@ import { prisma } from "@/lib/prisma";
 import { matchMarketplaces } from "@/lib/marketplace-matcher";
 import { AnalyticsClient } from "@/components/monthly/analytics-client";
 
-async function getAnalyticsData(month: string) {
-  const [year] = month.split("-").map(Number);
+// Tipagem estrita para resolver o erro do ESLint
+type ExpenseItem = {
+  title: string;
+  category?: string | null;
+  value: number | string | { toString(): string };
+  currentInstallment?: number;
+};
 
+async function getAnalyticsData(month: string) {
+  const [yearStr, monthStr] = month.split("-");
+  const year = Number(yearStr);
+  const monthIndex = Number(monthStr); // Ex: "03" vira 3
+  const yearStart = `${year}-01`;
+  const yearEnd = `${year}-12`;
+
+  // --- Buscas ---
   const monthlyExpenses = await prisma.weeklyExpense.findMany({
     where: { month },
     orderBy: [{ week: "asc" }],
   });
-
-  const yearStart = `${year}-01`;
-  const yearEnd = `${year}-12`;
   const yearlyExpenses = await prisma.weeklyExpense.findMany({
     where: { month: { gte: yearStart, lte: yearEnd } },
   });
+
+  const fixedExpenses = await prisma.fixedExpense.findMany();
+  const installments = await prisma.installment.findMany();
 
   const marketplaces = await prisma.marketplace.findMany({
     orderBy: { name: "asc" },
   });
 
+  // --- Função Auxiliar de Agregação ---
+  const addToCategoryMap = (
+    map: Record<string, number>,
+    items: ExpenseItem[],
+    multiplier: number = 1,
+  ) => {
+    for (const item of items) {
+      const key = item.category || "Outros";
+      map[key] = (map[key] ?? 0) + Number(item.value) * multiplier;
+    }
+  };
+
+  // Prepara parcelamentos para a visão anual considerando a parcela atual
+  const installmentsForAnnual = installments.map((inst) => {
+    const instMultiplier = Math.min(
+      monthIndex,
+      inst.currentInstallment || monthIndex,
+    );
+    return { ...inst, value: Number(inst.value) * instMultiplier };
+  });
+
   // --- Visão Mensal: Categorias ---
   const categoryMap: Record<string, number> = {};
-  for (const e of monthlyExpenses) {
-    const key = e.category ?? "Outros";
-    categoryMap[key] = (categoryMap[key] ?? 0) + Number(e.value);
-  }
+  addToCategoryMap(categoryMap, monthlyExpenses);
+  addToCategoryMap(categoryMap, fixedExpenses);
+  addToCategoryMap(categoryMap, installments);
+
   const byCategory = Object.entries(categoryMap)
     .map(([name, value]) => ({ name, value: Math.round(value * 100) / 100 }))
     .sort((a, b) => b.value - a.value);
 
   // --- Visão Anual: Categorias ---
   const annualCategoryMap: Record<string, number> = {};
-  for (const e of yearlyExpenses) {
-    const key = e.category ?? "Outros";
-    annualCategoryMap[key] = (annualCategoryMap[key] ?? 0) + Number(e.value);
-  }
+  addToCategoryMap(annualCategoryMap, yearlyExpenses);
+  addToCategoryMap(annualCategoryMap, fixedExpenses, monthIndex); // Ex: Valor * 3 meses
+  addToCategoryMap(annualCategoryMap, installmentsForAnnual); // Já multiplicado individualmente
+
   const annualByCategory = Object.entries(annualCategoryMap)
     .map(([name, value]) => ({ name, value: Math.round(value * 100) / 100 }))
     .sort((a, b) => b.value - a.value);
 
+  // --- Visão Mensal: Semanas e Evolução Mensal ---
   const byWeek = [1, 2, 3, 4].map((w) => ({
     name: `S${w}`,
     value: monthlyExpenses
@@ -76,22 +111,37 @@ async function getAnalyticsData(month: string) {
   });
 
   // --- Visão Mensal: Marketplaces ---
-  const expensesForMarketplace = monthlyExpenses.map((e) => ({
-    title: e.title,
-    value: Number(e.value),
-  }));
-  const byMarketplace = matchMarketplaces(expensesForMarketplace, marketplaces);
-
-  // --- Visão Anual: Marketplaces ---
-  const yearlyExpensesForMarketplace = yearlyExpenses.map((e) => ({
-    title: e.title,
-    value: Number(e.value),
-  }));
-  const annualByMarketplace = matchMarketplaces(
-    yearlyExpensesForMarketplace,
+  const allMonthlyForMarketplace = [
+    ...monthlyExpenses,
+    ...fixedExpenses,
+    ...installments,
+  ].map((e) => ({ title: e.title, value: Number(e.value) }));
+  const byMarketplace = matchMarketplaces(
+    allMonthlyForMarketplace,
     marketplaces,
   );
 
+  // --- Visão Anual: Marketplaces ---
+  const projectedYearlyFixed = fixedExpenses.map((e) => ({
+    title: e.title,
+    value: Number(e.value) * monthIndex,
+  }));
+  const projectedYearlyInst = installmentsForAnnual.map((e) => ({
+    title: e.title,
+    value: Number(e.value),
+  }));
+
+  const allYearlyForMarketplace = [
+    ...yearlyExpenses.map((e) => ({ title: e.title, value: Number(e.value) })),
+    ...projectedYearlyFixed,
+    ...projectedYearlyInst,
+  ];
+  const annualByMarketplace = matchMarketplaces(
+    allYearlyForMarketplace,
+    marketplaces,
+  );
+
+  // --- Totais Mensais ---
   const totalMonth = monthlyExpenses.reduce(
     (acc, e) => acc + Number(e.value),
     0,
@@ -114,8 +164,8 @@ async function getAnalyticsData(month: string) {
     byCategory,
     byWeek,
     byMonthYear,
-    annualByCategory, // Propriedade adicionada
-    annualByMarketplace, // Propriedade adicionada
+    annualByCategory,
+    annualByMarketplace,
     byMarketplace,
     marketplaces,
     totals: {
