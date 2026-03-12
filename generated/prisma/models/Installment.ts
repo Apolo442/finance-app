@@ -48,6 +48,7 @@ export type InstallmentMinAggregateOutputType = {
   totalInstallments: number | null
   startMonth: string | null
   createdAt: Date | null
+  deletedAt: string | null
 }
 
 export type InstallmentMaxAggregateOutputType = {
@@ -60,6 +61,7 @@ export type InstallmentMaxAggregateOutputType = {
   totalInstallments: number | null
   startMonth: string | null
   createdAt: Date | null
+  deletedAt: string | null
 }
 
 export type InstallmentCountAggregateOutputType = {
@@ -72,6 +74,7 @@ export type InstallmentCountAggregateOutputType = {
   totalInstallments: number
   startMonth: number
   createdAt: number
+  deletedAt: number
   _all: number
 }
 
@@ -98,6 +101,7 @@ export type InstallmentMinAggregateInputType = {
   totalInstallments?: true
   startMonth?: true
   createdAt?: true
+  deletedAt?: true
 }
 
 export type InstallmentMaxAggregateInputType = {
@@ -110,6 +114,7 @@ export type InstallmentMaxAggregateInputType = {
   totalInstallments?: true
   startMonth?: true
   createdAt?: true
+  deletedAt?: true
 }
 
 export type InstallmentCountAggregateInputType = {
@@ -122,6 +127,7 @@ export type InstallmentCountAggregateInputType = {
   totalInstallments?: true
   startMonth?: true
   createdAt?: true
+  deletedAt?: true
   _all?: true
 }
 
@@ -221,6 +227,7 @@ export type InstallmentGroupByOutputType = {
   totalInstallments: number
   startMonth: string
   createdAt: Date
+  deletedAt: string | null
   _count: InstallmentCountAggregateOutputType | null
   _avg: InstallmentAvgAggregateOutputType | null
   _sum: InstallmentSumAggregateOutputType | null
@@ -256,6 +263,7 @@ export type InstallmentWhereInput = {
   totalInstallments?: Prisma.IntFilter<"Installment"> | number
   startMonth?: Prisma.StringFilter<"Installment"> | string
   createdAt?: Prisma.DateTimeFilter<"Installment"> | Date | string
+  deletedAt?: Prisma.StringNullableFilter<"Installment"> | string | null
 }
 
 export type InstallmentOrderByWithRelationInput = {
@@ -268,6 +276,7 @@ export type InstallmentOrderByWithRelationInput = {
   totalInstallments?: Prisma.SortOrder
   startMonth?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type InstallmentWhereUniqueInput = Prisma.AtLeast<{
@@ -283,6 +292,7 @@ export type InstallmentWhereUniqueInput = Prisma.AtLeast<{
   totalInstallments?: Prisma.IntFilter<"Installment"> | number
   startMonth?: Prisma.StringFilter<"Installment"> | string
   createdAt?: Prisma.DateTimeFilter<"Installment"> | Date | string
+  deletedAt?: Prisma.StringNullableFilter<"Installment"> | string | null
 }, "id">
 
 export type InstallmentOrderByWithAggregationInput = {
@@ -295,6 +305,7 @@ export type InstallmentOrderByWithAggregationInput = {
   totalInstallments?: Prisma.SortOrder
   startMonth?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.InstallmentCountOrderByAggregateInput
   _avg?: Prisma.InstallmentAvgOrderByAggregateInput
   _max?: Prisma.InstallmentMaxOrderByAggregateInput
@@ -315,6 +326,7 @@ export type InstallmentScalarWhereWithAggregatesInput = {
   totalInstallments?: Prisma.IntWithAggregatesFilter<"Installment"> | number
   startMonth?: Prisma.StringWithAggregatesFilter<"Installment"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Installment"> | Date | string
+  deletedAt?: Prisma.StringNullableWithAggregatesFilter<"Installment"> | string | null
 }
 
 export type InstallmentCreateInput = {
@@ -327,6 +339,7 @@ export type InstallmentCreateInput = {
   totalInstallments: number
   startMonth: string
   createdAt?: Date | string
+  deletedAt?: string | null
 }
 
 export type InstallmentUncheckedCreateInput = {
@@ -339,6 +352,7 @@ export type InstallmentUncheckedCreateInput = {
   totalInstallments: number
   startMonth: string
   createdAt?: Date | string
+  deletedAt?: string | null
 }
 
 export type InstallmentUpdateInput = {
@@ -351,6 +365,7 @@ export type InstallmentUpdateInput = {
   totalInstallments?: Prisma.IntFieldUpdateOperationsInput | number
   startMonth?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type InstallmentUncheckedUpdateInput = {
@@ -363,6 +378,7 @@ export type InstallmentUncheckedUpdateInput = {
   totalInstallments?: Prisma.IntFieldUpdateOperationsInput | number
   startMonth?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type InstallmentCreateManyInput = {
@@ -375,6 +391,7 @@ export type InstallmentCreateManyInput = {
   totalInstallments: number
   startMonth: string
   createdAt?: Date | string
+  deletedAt?: string | null
 }
 
 export type InstallmentUpdateManyMutationInput = {
@@ -387,6 +404,7 @@ export type InstallmentUpdateManyMutationInput = {
   totalInstallments?: Prisma.IntFieldUpdateOperationsInput | number
   startMonth?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type InstallmentUncheckedUpdateManyInput = {
@@ -399,6 +417,7 @@ export type InstallmentUncheckedUpdateManyInput = {
   totalInstallments?: Prisma.IntFieldUpdateOperationsInput | number
   startMonth?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type InstallmentCountOrderByAggregateInput = {
@@ -411,6 +430,7 @@ export type InstallmentCountOrderByAggregateInput = {
   totalInstallments?: Prisma.SortOrder
   startMonth?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type InstallmentAvgOrderByAggregateInput = {
@@ -429,6 +449,7 @@ export type InstallmentMaxOrderByAggregateInput = {
   totalInstallments?: Prisma.SortOrder
   startMonth?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type InstallmentMinOrderByAggregateInput = {
@@ -441,6 +462,7 @@ export type InstallmentMinOrderByAggregateInput = {
   totalInstallments?: Prisma.SortOrder
   startMonth?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
 }
 
 export type InstallmentSumOrderByAggregateInput = {
@@ -469,6 +491,7 @@ export type InstallmentSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   totalInstallments?: boolean
   startMonth?: boolean
   createdAt?: boolean
+  deletedAt?: boolean
 }, ExtArgs["result"]["installment"]>
 
 export type InstallmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -481,6 +504,7 @@ export type InstallmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   totalInstallments?: boolean
   startMonth?: boolean
   createdAt?: boolean
+  deletedAt?: boolean
 }, ExtArgs["result"]["installment"]>
 
 export type InstallmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -493,6 +517,7 @@ export type InstallmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   totalInstallments?: boolean
   startMonth?: boolean
   createdAt?: boolean
+  deletedAt?: boolean
 }, ExtArgs["result"]["installment"]>
 
 export type InstallmentSelectScalar = {
@@ -505,9 +530,10 @@ export type InstallmentSelectScalar = {
   totalInstallments?: boolean
   startMonth?: boolean
   createdAt?: boolean
+  deletedAt?: boolean
 }
 
-export type InstallmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "value" | "category" | "bank" | "currentInstallment" | "totalInstallments" | "startMonth" | "createdAt", ExtArgs["result"]["installment"]>
+export type InstallmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "value" | "category" | "bank" | "currentInstallment" | "totalInstallments" | "startMonth" | "createdAt" | "deletedAt", ExtArgs["result"]["installment"]>
 
 export type $InstallmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Installment"
@@ -522,6 +548,7 @@ export type $InstallmentPayload<ExtArgs extends runtime.Types.Extensions.Interna
     totalInstallments: number
     startMonth: string
     createdAt: Date
+    deletedAt: string | null
   }, ExtArgs["result"]["installment"]>
   composites: {}
 }
@@ -954,6 +981,7 @@ export interface InstallmentFieldRefs {
   readonly totalInstallments: Prisma.FieldRef<"Installment", 'Int'>
   readonly startMonth: Prisma.FieldRef<"Installment", 'String'>
   readonly createdAt: Prisma.FieldRef<"Installment", 'DateTime'>
+  readonly deletedAt: Prisma.FieldRef<"Installment", 'String'>
 }
     
 

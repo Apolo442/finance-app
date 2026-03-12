@@ -29,14 +29,20 @@ interface MarketplaceResult {
   total: number;
 }
 
+interface CategoryResult {
+  name: string;
+  value: number;
+  items: { title: string; value: number }[];
+}
+
 interface AnalyticsData {
   month: string;
-  byCategory: { name: string; value: number }[];
+  byCategory: CategoryResult[]; // <-- Alterado
   byWeek: { name: string; value: number }[];
   byMonthYear: { name: string; value: number }[];
-  byMarketplace: MarketplaceResult[];
-  annualByCategory?: { name: string; value: number }[];
+  annualByCategory?: CategoryResult[]; // <-- Alterado
   annualByMarketplace?: MarketplaceResult[];
+  byMarketplace: MarketplaceResult[];
   marketplaces: Marketplace[];
   totals: {
     total: number;
@@ -377,6 +383,7 @@ function MarketplaceBI({
 export function AnalyticsClient({ data }: { data: AnalyticsData }) {
   const router = useRouter();
   const [view, setView] = useState<"month" | "year">("month");
+  const [expandedCat, setExpandedCat] = useState<string | null>(null);
 
   const monthLabel = new Date(data.month + "-02")
     .toLocaleDateString("pt-BR", { month: "long" })
@@ -589,43 +596,110 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                         {data.byCategory.map((cat, i) => (
                           <div
                             key={cat.name}
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
+                            style={{ display: "flex", flexDirection: "column" }}
                           >
                             <div
+                              onClick={() =>
+                                setExpandedCat(
+                                  expandedCat === cat.name ? null : cat.name,
+                                )
+                              }
                               style={{
                                 display: "flex",
+                                justifyContent: "space-between",
                                 alignItems: "center",
-                                gap: "8px",
+                                cursor: "pointer",
+                                padding: "4px 0",
                               }}
                             >
                               <div
                                 style={{
-                                  width: "8px",
-                                  height: "8px",
-                                  borderRadius: "2px",
-                                  background: COLORS[i % COLORS.length],
-                                  flexShrink: 0,
-                                }}
-                              />
-                              <span
-                                style={{
-                                  fontSize: "12px",
-                                  color: "var(--text-muted)",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "8px",
                                 }}
                               >
-                                {cat.name}
+                                <div
+                                  style={{
+                                    width: "8px",
+                                    height: "8px",
+                                    borderRadius: "2px",
+                                    background: COLORS[i % COLORS.length],
+                                    flexShrink: 0,
+                                  }}
+                                />
+                                <span
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "var(--text-muted)",
+                                    transition: "color 0.2s",
+                                    userSelect: "none",
+                                  }}
+                                >
+                                  {cat.name}{" "}
+                                  {expandedCat === cat.name ? "▾" : "▸"}
+                                </span>
+                              </div>
+                              <span
+                                className="mono"
+                                style={{
+                                  fontSize: "12px",
+                                  color: "var(--text)",
+                                }}
+                              >
+                                {fmt(cat.value)}
                               </span>
                             </div>
-                            <span
-                              className="mono"
-                              style={{ fontSize: "12px", color: "var(--text)" }}
-                            >
-                              {fmt(cat.value)}
-                            </span>
+
+                            {expandedCat === cat.name && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "6px",
+                                  paddingLeft: "12px",
+                                  marginTop: "4px",
+                                  marginBottom: "8px",
+                                  borderLeft: "2px solid var(--border)",
+                                  marginLeft: "3px",
+                                  maxHeight: "200px",
+                                  overflowY: "auto",
+                                }}
+                              >
+                                {cat.items.map((item, idx) => (
+                                  <div
+                                    key={idx}
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                      gap: "12px",
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        fontSize: "11px",
+                                        color: "var(--text-dim)",
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                      }}
+                                    >
+                                      {item.title}
+                                    </span>
+                                    <span
+                                      className="mono"
+                                      style={{
+                                        fontSize: "11px",
+                                        color: "var(--text-dim)",
+                                      }}
+                                    >
+                                      {fmt(item.value)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -854,46 +928,114 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                           marginTop: "8px",
                         }}
                       >
+                        {/*  */}
                         {data.annualByCategory.map((cat, i) => (
                           <div
                             key={cat.name}
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
+                            style={{ display: "flex", flexDirection: "column" }}
                           >
                             <div
+                              onClick={() =>
+                                setExpandedCat(
+                                  expandedCat === cat.name ? null : cat.name,
+                                )
+                              }
                               style={{
                                 display: "flex",
+                                justifyContent: "space-between",
                                 alignItems: "center",
-                                gap: "8px",
+                                cursor: "pointer",
+                                padding: "4px 0",
                               }}
                             >
                               <div
                                 style={{
-                                  width: "8px",
-                                  height: "8px",
-                                  borderRadius: "2px",
-                                  background: COLORS[i % COLORS.length],
-                                  flexShrink: 0,
-                                }}
-                              />
-                              <span
-                                style={{
-                                  fontSize: "12px",
-                                  color: "var(--text-muted)",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "8px",
                                 }}
                               >
-                                {cat.name}
+                                <div
+                                  style={{
+                                    width: "8px",
+                                    height: "8px",
+                                    borderRadius: "2px",
+                                    background: COLORS[i % COLORS.length],
+                                    flexShrink: 0,
+                                  }}
+                                />
+                                <span
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "var(--text-muted)",
+                                    transition: "color 0.2s",
+                                    userSelect: "none",
+                                  }}
+                                >
+                                  {cat.name}{" "}
+                                  {expandedCat === cat.name ? "▾" : "▸"}
+                                </span>
+                              </div>
+                              <span
+                                className="mono"
+                                style={{
+                                  fontSize: "12px",
+                                  color: "var(--text)",
+                                }}
+                              >
+                                {fmt(cat.value)}
                               </span>
                             </div>
-                            <span
-                              className="mono"
-                              style={{ fontSize: "12px", color: "var(--text)" }}
-                            >
-                              {fmt(cat.value)}
-                            </span>
+
+                            {expandedCat === cat.name && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "6px",
+                                  paddingLeft: "12px",
+                                  marginTop: "4px",
+                                  marginBottom: "8px",
+                                  borderLeft: "2px solid var(--border)",
+                                  marginLeft: "3px",
+                                  maxHeight: "200px",
+                                  overflowY: "auto",
+                                }}
+                              >
+                                {cat.items.map((item, idx) => (
+                                  <div
+                                    key={idx}
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                      gap: "12px",
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        fontSize: "11px",
+                                        color: "var(--text-dim)",
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                      }}
+                                    >
+                                      {item.title}
+                                    </span>
+                                    <span
+                                      className="mono"
+                                      style={{
+                                        fontSize: "11px",
+                                        color: "var(--text-dim)",
+                                      }}
+                                    >
+                                      {fmt(item.value)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>

@@ -139,7 +139,8 @@ export const InstallmentScalarFieldEnum = {
   currentInstallment: 'currentInstallment',
   totalInstallments: 'totalInstallments',
   startMonth: 'startMonth',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  deletedAt: 'deletedAt'
 } as const
 
 export type InstallmentScalarFieldEnum = (typeof InstallmentScalarFieldEnum)[keyof typeof InstallmentScalarFieldEnum]

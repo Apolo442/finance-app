@@ -68,6 +68,7 @@ model Installment {
   totalInstallments   Int
   startMonth          String   // formato: "YYYY-MM"
   createdAt           DateTime @default(now())
+  deletedAt  String?  // formato: "YYYY-MM"
 }
 
 model MonthlyBudget {
