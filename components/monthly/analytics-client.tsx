@@ -164,7 +164,6 @@ function MarketplaceBI({
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
         borderRadius: "8px",
-        height: "100%", // Garante que estique igual ao card de Categoria
       }}
     >
       <div
@@ -470,7 +469,7 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
           {!hasMonthData ? (
             <div
               style={{
-                padding: "48px",
+                padding: "32px 24px",
                 textAlign: "center",
                 color: "var(--text-dim)",
                 fontSize: "13px",
@@ -752,7 +751,7 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(v) => `R$${v}`}
-                      width={56}
+                      width={48}
                     />
                     <Tooltip
                       cursor={false}
@@ -780,7 +779,7 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
           {!hasYearData ? (
             <div
               style={{
-                padding: "48px",
+                padding: "32px 24px",
                 textAlign: "center",
                 color: "var(--text-dim)",
                 fontSize: "13px",
@@ -828,7 +827,7 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                     axisLine={false}
                     tickLine={false}
                     tickFormatter={(v) => `R$${v}`}
-                    width={60}
+                    width={48}
                   />
                   <Tooltip
                     {...tooltipStyle}
@@ -851,7 +850,7 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                   paddingTop: "16px",
                 }}
               >
-                <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
+                <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
                   {data.byMonthYear.map((m) => (
                     <div key={m.name} style={{ textAlign: "center" }}>
                       <p

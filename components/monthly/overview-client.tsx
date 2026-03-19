@@ -404,7 +404,7 @@ function WeekCard({
   onToggleCarry?: () => void;
   onRefresh: () => void;
 }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const pct =
     week.budget > 0 ? Math.min((week.spent / week.budget) * 100, 100) : 0;
@@ -425,7 +425,7 @@ function WeekCard({
         borderRadius: "8px",
         overflow: "hidden",
         flex: "1",
-        minWidth: "240px",
+        minWidth: 0,
       }}
     >
       {/* Week header */}
